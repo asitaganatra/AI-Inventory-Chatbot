@@ -6,14 +6,8 @@ import pandas as pd
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
-from langchain.schema import BaseOutputParser
 
 from datetime import datetime, timedelta
-
-# Simple string output parser
-class StrOutputParser(BaseOutputParser):
-    def parse(self, text: str) -> str:
-        return text
 
 from analytics import (
     get_all_inventory_data,
@@ -64,7 +58,6 @@ except KeyError:
 
 # ---- Initialize LLM ----
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key)
-parser = StrOutputParser()
 
 template = """
 You are an AI-powered female inventory assistant with access to real-time inventory, sales, and payment data.
@@ -90,9 +83,6 @@ Inventory & Sales Data:
 User Question: {user_question}
 """
 prompt = PromptTemplate(template=template, input_variables=["inventory_data", "user_question"])
-
-# Modern LangChain pipeline
-chain = prompt | llm | parser
 
 # ---- Initialize Chat Session ----
 if "messages" not in st.session_state:
@@ -260,10 +250,13 @@ if final_user_input:
                 else:
                     inventory_data = get_all_inventory_data()
 
-                response = chain.invoke({
-                    "inventory_data": inventory_data,
-                    "user_question": final_user_input
-                })
+                # Format prompt and call LLM
+                formatted_prompt = prompt.format(
+                    inventory_data=inventory_data,
+                    user_question=final_user_input
+                )
+                response = llm.predict(text=formatted_prompt)
+                
                 is_price_query = any(kw in final_user_input.lower() for kw in ['price', 'cost', 'how much', 'kitna'])
                 if is_price_query and ('0.0' in response or 'price is 0' in response.lower()):
                     response += "\n\n📝 **Note:** Price not yet set. Ask owner to update in Owner Tools > Edit Product Prices."
