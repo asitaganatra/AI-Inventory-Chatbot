@@ -16,7 +16,7 @@ python startup_check.py
 streamlit run app.py
 ```
 
-The app will open at: **[http://localhost:8501**](https://ai-inventory-chatbot-khhiljfm2h4xuapy99josj.streamlit.app/)
+The app will open at: https://ai-inventory-chatbot-khhiljfm2h4xuapy99josj.streamlit.app/
 
 ---
 
