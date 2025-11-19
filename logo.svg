@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" width="640" height="160" role="img" aria-label="AI Inventory logo">
+  <defs>
+    <linearGradient id="lg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0ea5a4"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded box -->
+  <rect x="8" y="8" width="144" height="144" rx="20" fill="#071021"/>
+
+  <!-- Icon: stacked boxes forming an 'A' + circuit dot -->
+  <g transform="translate(30,20)" filter="url(#shadow)">
+    <rect x="8" y="8" width="96" height="96" rx="12" fill="url(#lg)"/>
+    <!-- boxes -->
+    <rect x="22" y="30" width="20" height="18" rx="4" fill="#ffffff" opacity="0.95"/>
+    <rect x="48" y="30" width="20" height="18" rx="4" fill="#ffffff" opacity="0.95"/>
+    <rect x="35" y="52" width="20" height="18" rx="4" fill="#ffffff" opacity="0.95"/>
+    <!-- circuit dot -->
+    <circle cx="80" cy="28" r="6" fill="#ffffff"/>
+  </g>
+
+  <!-- Brand text -->
+  <g transform="translate(170,44)">
+    <text x="0" y="28" font-family="Segoe UI, Roboto, Helvetica, Arial" font-weight="700" font-size="36" fill="#FFFFFF">AI Inventory</text>
+    <text x="0" y="64" font-family="Segoe UI, Roboto, Helvetica, Arial" font-weight="400" font-size="14" fill="#BFE9F1">Smart stock, smarter decisions</text>
+  </g>
+</svg>
