@@ -5,10 +5,15 @@ import sqlite3
 import pandas as pd
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
+from langchain.prompts import PromptTemplate
+from langchain.schema import BaseOutputParser
 
 from datetime import datetime, timedelta
+
+# Simple string output parser
+class StrOutputParser(BaseOutputParser):
+    def parse(self, text: str) -> str:
+        return text
 
 from analytics import (
     get_all_inventory_data,
