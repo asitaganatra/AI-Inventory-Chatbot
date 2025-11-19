@@ -270,7 +270,7 @@ User Question: {final_user_input}"""
                     import io
                     
                     # Clean the text for speech (remove markdown formatting)
-                    speech_text = clean_text_for_speech(response)
+                    speech_text = clean_text_for_speech(response_text)
                     
                     lang_code = "en" if st.session_state.get("voice_lang", "English") == "English" else "hi"
                     tts = gTTS(text=speech_text, lang=lang_code, slow=False)
