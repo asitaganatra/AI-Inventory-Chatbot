@@ -4,8 +4,7 @@ import time
 import sqlite3
 import pandas as pd
 
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.prompts import PromptTemplate
+import google.generativeai as genai
 
 from datetime import datetime, timedelta
 
@@ -56,10 +55,12 @@ except KeyError:
     st.error("API Key not found. Please create a '.streamlit/secrets.toml' file and add your key.")
     st.stop()
 
-# ---- Initialize LLM ----
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key)
+# ---- Initialize Gemini ----
+genai.configure(api_key=api_key)
+model = genai.GenerativeModel('gemini-pro')
 
-template = """
+# ---- System Prompt ----
+system_prompt = """
 You are an AI-powered female inventory assistant with access to real-time inventory, sales, and payment data.
 I am here to help you manage your inventory efficiently.
 
@@ -76,13 +77,7 @@ Examples of BRIEF responses:
 - "Yes, 45 units in stock at Rs. 8,500 each."
 - "Total revenue this month: Rs. 2.4 crores."
 - "Raj Patel spent Rs. 95,000 on 5 orders."
-
-Inventory & Sales Data:
-{inventory_data}
-
-User Question: {user_question}
 """
-prompt = PromptTemplate(template=template, input_variables=["inventory_data", "user_question"])
 
 # ---- Initialize Chat Session ----
 if "messages" not in st.session_state:
@@ -250,19 +245,24 @@ if final_user_input:
                 else:
                     inventory_data = get_all_inventory_data()
 
-                # Format prompt and call LLM
-                formatted_prompt = prompt.format(
-                    inventory_data=inventory_data,
-                    user_question=final_user_input
-                )
-                response = llm.predict(text=formatted_prompt)
+                # Build the complete prompt
+                full_prompt = f"""{system_prompt}
+
+Inventory & Sales Data:
+{inventory_data}
+
+User Question: {final_user_input}"""
+
+                # Call Gemini API
+                response = model.generate_content(full_prompt)
+                response_text = response.text
                 
                 is_price_query = any(kw in final_user_input.lower() for kw in ['price', 'cost', 'how much', 'kitna'])
-                if is_price_query and ('0.0' in response or 'price is 0' in response.lower()):
-                    response += "\n\n📝 **Note:** Price not yet set. Ask owner to update in Owner Tools > Edit Product Prices."
+                if is_price_query and ('0.0' in response_text or 'price is 0' in response_text.lower()):
+                    response_text += "\n\n📝 **Note:** Price not yet set. Ask owner to update in Owner Tools > Edit Product Prices."
 
-                st.markdown(response)
-                st.session_state.messages.append({"role": "assistant", "content": response})
+                st.markdown(response_text)
+                st.session_state.messages.append({"role": "assistant", "content": response_text})
                 
                 # Convert response to speech and play it
                 try:
