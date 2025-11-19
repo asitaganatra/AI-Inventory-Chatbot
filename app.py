@@ -57,7 +57,7 @@ except KeyError:
 
 # ---- Initialize Gemini ----
 genai.configure(api_key=api_key)
-model = genai.GenerativeModel('gemini-pro')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 # ---- System Prompt ----
 system_prompt = """
