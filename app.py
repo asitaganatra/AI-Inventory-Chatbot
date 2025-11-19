@@ -200,23 +200,30 @@ if mic_clicked:
     try:
         import speech_recognition as sr
         
-        recognizer = sr.Recognizer()
-        
-        # Record from microphone
-        with sr.Microphone() as source:
+        # Check if PyAudio is available (required for microphone access)
+        try:
+            import pyaudio
+        except ImportError:
+            st.error("❌ Microphone error: Could not find PyAudio; check installation")
+            st.info("💡 Microphone not available in this environment. Use text input instead or upload an audio file above.")
+        else:
+            recognizer = sr.Recognizer()
+            
+            # Record from microphone
             try:
-                # Record for up to 10 seconds
-                audio = recognizer.listen(source, timeout=10, phrase_time_limit=10)
-                
-                # Transcribe to text
-                lang_code = "en-US" if st.session_state.get("voice_lang", "English") == "English" else "hi-IN"
-                transcribed_text = recognizer.recognize_google(audio, language=lang_code)
-                
-                st.success(f"✅ You said: **{transcribed_text}**")
-                
-                # Store for processing below
-                mic_transcribed = transcribed_text
-                
+                with sr.Microphone() as source:
+                    # Record for up to 10 seconds
+                    audio = recognizer.listen(source, timeout=10, phrase_time_limit=10)
+                    
+                    # Transcribe to text
+                    lang_code = "en-US" if st.session_state.get("voice_lang", "English") == "English" else "hi-IN"
+                    transcribed_text = recognizer.recognize_google(audio, language=lang_code)
+                    
+                    st.success(f"✅ You said: **{transcribed_text}**")
+                    
+                    # Store for processing below
+                    mic_transcribed = transcribed_text
+                    
             except sr.UnknownValueError:
                 st.error("❌ Couldn't understand. Please speak clearly.")
             except sr.RequestError:
