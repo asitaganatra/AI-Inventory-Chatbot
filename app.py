@@ -254,36 +254,42 @@ Inventory & Sales Data:
 User Question: {final_user_input}"""
 
                 # Call Gemini API
-                response = model.generate_content(full_prompt)
-                response_text = response.text
-                
-                is_price_query = any(kw in final_user_input.lower() for kw in ['price', 'cost', 'how much', 'kitna'])
-                if is_price_query and ('0.0' in response_text or 'price is 0' in response_text.lower()):
-                    response_text += "\n\n📝 **Note:** Price not yet set. Ask owner to update in Owner Tools > Edit Product Prices."
-
-                st.markdown(response_text)
-                st.session_state.messages.append({"role": "assistant", "content": response_text})
-                
-                # Convert response to speech and play it
                 try:
-                    from gtts import gTTS
-                    import io
+                    response = model.generate_content(full_prompt)
+                    response_text = response.text
                     
-                    # Clean the text for speech (remove markdown formatting)
-                    speech_text = clean_text_for_speech(response_text)
-                    
-                    lang_code = "en" if st.session_state.get("voice_lang", "English") == "English" else "hi"
-                    tts = gTTS(text=speech_text, lang=lang_code, slow=False)
-                    mp3_buffer = io.BytesIO()
-                    tts.write_to_fp(mp3_buffer)
-                    mp3_buffer.seek(0)
-                    
-                    st.audio(mp3_buffer.read(), format="audio/mp3", autoplay=True)
-                    
-                except Exception as audio_error:
-                    st.warning(f"⚠️ Could not generate audio: {str(audio_error)}. Text response is available.")
-                
-                # Re-display chat with new assistant response
+                    if not response_text:
+                        st.error("❌ Empty response from API. Please try again.")
+                    else:
+                        is_price_query = any(kw in final_user_input.lower() for kw in ['price', 'cost', 'how much', 'kitna'])
+                        if is_price_query and ('0.0' in response_text or 'price is 0' in response_text.lower()):
+                            response_text += "\n\n📝 **Note:** Price not yet set. Ask owner to update in Owner Tools > Edit Product Prices."
+
+                        st.markdown(response_text)
+                        st.session_state.messages.append({"role": "assistant", "content": response_text})
+                        
+                        # Convert response to speech and play it
+                        try:
+                            from gtts import gTTS
+                            import io
+                            
+                            # Clean the text for speech (remove markdown formatting)
+                            speech_text = clean_text_for_speech(response_text)
+                            
+                            lang_code = "en" if st.session_state.get("voice_lang", "English") == "English" else "hi"
+                            tts = gTTS(text=speech_text, lang=lang_code, slow=False)
+                            mp3_buffer = io.BytesIO()
+                            tts.write_to_fp(mp3_buffer)
+                            mp3_buffer.seek(0)
+                            
+                            st.audio(mp3_buffer.read(), format="audio/mp3", autoplay=True)
+                            
+                        except Exception as audio_error:
+                            st.warning(f"⚠️ Could not generate audio: {str(audio_error)}. Text response is available.")
+                        
+                except Exception as api_error:
+                    st.error(f"❌ API Error: {str(api_error)}. Check your API key or try again.")
+                                # Re-display chat with new assistant response
                 with chat_container:
                     for message in st.session_state.messages:
                         with st.chat_message(message["role"]):
